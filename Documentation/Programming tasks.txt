@@ -1,0 +1,48 @@
+gameplay loop:
+
+Goal - Cake
+
+Do for time x
+{
+	Command villager to collect resource  / bake cake
+	Villager does task
+}
+
+Judgement day (carry cake?) - loss of people
+
+gameover (everyone is dead) highscore list
+
+if not -> next year, do it all over again.
+
+Coding tasks:
+
+Main systems:
+	- Resource system
+	- cake layer system (requires certain resources per layer)
+	- Goal setup system (random resources per layer of cake)
+	- Judgement system (check that resource amounts and types match in the cake)
+	- Villager system (move and collect and bake)
+	- Timer
+
+UI systems:
+	- setup graphics in main scene
+	- gameover highscore screen
+	- main menu
+
+nice to have tasks:
+- pause menu
+- carrying the cake
+
+
+Supravee tasks:
+	- Villager system (move and collect and bake)
+	- Timer
+	- setup graphics in main scene
+	- gameover highscore screen
+	- main menu
+
+HuvaaKoodia tasks:
+	- Resource system
+	- cake layer system (requires certain resources per layer)
+	- Goal setup system (random resources per layer of cake)
+	- Judgement system (check that resource amounts and types match in the cake)
