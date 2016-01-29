@@ -36,7 +36,9 @@ nice to have tasks:
 
 Supravee tasks:
 	- Villager system (move and collect and bake)
-	- Timer
+		move - select villager then select somewhere villager go to where we click (if click resource villager will go to get it and then auto go to bake cake)
+	- Timer 
+		Judgement day has once a year (5 minute in real time is a year)
 	- setup graphics in main scene
 	- gameover highscore screen
 	- main menu
