@@ -14,7 +14,7 @@ public class Timer : MonoBehaviour
 
     void Awake()
     {
-        timeInMinute = 5;
+        timeInMinute = 0;
     }
 
     // Use this for initialization
