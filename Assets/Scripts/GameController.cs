@@ -8,11 +8,22 @@ public class GameController : MonoBehaviour
 	public ResourcePanel CollectedResourcesPanel;
 	public ResourcePanel[] RequiredResourceLayerPanels;
 
+	public static GameController I;
+
+	public Villager VillagerPrefab;
+	public Transform VillagerStartPosCenter;
+	public Transform ResourceDropArea;
+
 	ResourceList CollectedResources;
 	ResourceList[] RequiredResources;
 	int[] maxResourceAmountsPerLayer;
 
-	public void Start()
+	private void Awake()
+	{
+		I = this;
+	}
+
+	private void Start()
 	{
 		//set basic values
 		maxResourceAmountsPerLayer = new int[3];
@@ -69,19 +80,41 @@ public class GameController : MonoBehaviour
 			}
 
 			//set GUI
-			CollectedResourcesPanel.Init(CollectedResources);
+			UpdateCollectedResourcesGUI();
+			UpdateRequiredResourcesGUI();
 
-			for (int i = 0; i < RequiredResources.Length; i++) 
+			//spawn villagers
+			int amountOfVillagers = 8;
+			for (int i = 0; i < amountOfVillagers; i++) 
 			{
-				RequiredResourceLayerPanels[i].Init(RequiredResources[i]);
+				var villager = Instantiate(VillagerPrefab, Helpers.RandomPlanePosition(VillagerStartPosCenter.position, 5f), Quaternion.identity) as Villager;
+				villager.DroppedResourceAtCake += OnResourceGained;
+				villager.cakeThing = ResourceDropArea;
 			}
 		}
 	}
 
+	void OnResourceGained(ResourceID resource)
+	{
+		CollectedResources.AddResource(resource, 1);
+		UpdateCollectedResourcesGUI();
+	}
+
 	void Update()
 	{
-
 		if (Input.GetKeyDown(KeyCode.R)) Application.LoadLevel(Application.loadedLevel);
+	}
 
+	void UpdateCollectedResourcesGUI()
+	{
+		CollectedResourcesPanel.Init(CollectedResources);
+	}
+
+	void UpdateRequiredResourcesGUI()
+	{
+		for (int i = 0; i < RequiredResources.Length; i++) 
+		{
+			RequiredResourceLayerPanels[i].Init(RequiredResources[i]);
+		}
 	}
 }

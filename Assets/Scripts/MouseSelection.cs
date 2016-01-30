@@ -6,7 +6,6 @@ public class MouseSelection : MonoBehaviour
     public RaycastHit hit;
     public Ray ray;
 
-    Vector3 newPosition;
     Villager targetVillager;
 
     public Timer timerThing;
@@ -15,8 +14,6 @@ public class MouseSelection : MonoBehaviour
     void Awake()
     {
         ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-        newPosition = transform.position;
     }
 
     // Update is called once per frame
@@ -30,20 +27,32 @@ public class MouseSelection : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Mouse0) && timerThing.isJudgementDay == false)
         {
             ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+			//find resource or cake
+			if (targetVillager)
+			{
+				if (Physics.Raycast(ray, out hit, 100, 1 << LayerMask.NameToLayer("Resource")))
+				{
+					var resource = hit.collider.GetComponent<ResourceView>();
+					
+					targetVillager.getResource(resource);
+					return;
+				}
+			}
+
+			//find villager
             if (Physics.Raycast(ray, out hit, 100,  1 << LayerMask.NameToLayer("Villager")))
             {
                 targetVillager = hit.transform.GetComponent<Villager>();
             }
-            else if (Physics.Raycast(ray, out hit, 100, 1 << LayerMask.NameToLayer("Resource")))
+
+            /*else if (Physics.Raycast(ray, out hit, 100, 1 << LayerMask.NameToLayer("Ground")))
             {
-                newPosition = hit.point;
-                targetVillager.getResource(newPosition);
-            }
-            else if (Physics.Raycast(ray, out hit, 100, 1 << LayerMask.NameToLayer("Ground")))
-            {
-                newPosition = hit.point;
-                targetVillager.goToPoint(newPosition);
-            }
+				if (targetVillager)
+				{
+					targetVillager.goToPoint(hit.point);
+				}
+            }*/
         }
     }
 }
