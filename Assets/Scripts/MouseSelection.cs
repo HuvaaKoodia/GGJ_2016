@@ -13,6 +13,9 @@ public class MouseSelection : MonoBehaviour
 
     public Timer timerThing;
 
+    private bool isSelecting = false;
+    Vector3 mousePosition1;
+
     // Use this for initialization
     void Awake()
     {
@@ -66,13 +69,11 @@ public class MouseSelection : MonoBehaviour
                 targetVillager = hit.transform.GetComponent<Villager>();
                 if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.RightControl))
                 {
-                    Debug.Log("asdasdasd");
                     villagers.Add(targetVillager);
                     targetVillager.Select();
                 }
                 else 
                 {
-                    Debug.Log("###");
                     foreach (var villager in villagers) villager.Deselect();
                     villagers.Clear();
                     villagers.Add(targetVillager);
@@ -80,13 +81,39 @@ public class MouseSelection : MonoBehaviour
                 }
             }
 
-            /*else if (Physics.Raycast(ray, out hit, 100, 1 << LayerMask.NameToLayer("Ground")))
+            else if (Physics.Raycast(ray, out hit, 100, 1 << LayerMask.NameToLayer("Ground")))
             {
-				if (targetVillager)
-				{
-					targetVillager.goToPoint(hit.point);
-				}
-            }*/
+                isSelecting = true;
+                mousePosition1 = Input.mousePosition;
+            }
+        }
+        else if (Input.GetMouseButtonUp(0) && isSelecting)
+        {
+            foreach (var villager in villagers) villager.Deselect();
+            villagers.Clear();
+
+            isSelecting = false;
+            var allVillagers = new List<Villager>(FindObjectsOfType<Villager>());
+            var camera = Camera.main;
+            var viewportBounds = Utils.GetViewportBounds(camera, mousePosition1, Input.mousePosition);
+            foreach (var villager in allVillagers)
+            {
+                if (viewportBounds.Contains(camera.WorldToViewportPoint(villager.transform.position)))
+                {
+                    villagers.Add(villager);
+                    villager.Select();
+                }
+            }
+        }
+    }
+
+    void OnGUI()
+    {
+        if (isSelecting)
+        {
+            var rect = Utils.GetScreenRect(mousePosition1, Input.mousePosition);
+            Utils.DrawScreenRect(rect, new Color(0.8f, 0.8f, 0.95f, 0.25f));
+            Utils.DrawScreenRectBorder(rect, 2, new Color(0.8f, 0.8f, 0.95f));
         }
     }
 }
