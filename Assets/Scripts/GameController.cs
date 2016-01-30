@@ -14,17 +14,19 @@ public class GameController : MonoBehaviour
 	public Transform VillagerStartPosCenter;
 	public Transform ResourceDropArea;
 
+
     public YearOver YearOverPrefab;
+	public CakeView Cake;
 
 	public Timer Timer;
 
-	public static int VillagerAmount = 8, CakesMade = 0;
+	public static int VillagerAmount = 10, CakesMade = 0;
  
 	ResourceList CollectedResources;
-	ResourceList[] RequiredResources;
+	ResourceList[] RequiredResources, RequiredResourcesMax;
 	int[] maxResourceAmountsPerLayer;
 
-	int currentBakeLayer = 0;
+	int currentBakeLayer = 0, maxAmountRequired;
 
 	private List<Villager> Villagers;
 
@@ -53,14 +55,15 @@ public class GameController : MonoBehaviour
 			int maxResourceTypesPerLayer = 3;
 
 			RequiredResources = new ResourceList[layerAmount];
+			RequiredResourcesMax = new ResourceList[layerAmount];
 			for (int l = 0; l < layerAmount; l++) 
 			{
 				//create resource layer
-				var resourceList = new ResourceList();
-				RequiredResources[l] = resourceList;
+				RequiredResources[l] = new ResourceList();
+				RequiredResourcesMax [l] = new ResourceList();
 
 				//add resources to layer
-				int amountOfResourcesTypes = Random.Range(1, maxResourceTypesPerLayer + 1);
+				int amountOfResourcesTypes = Random.Range(1, (maxResourceTypesPerLayer - l) + 1);
 				int maxResourceAmountPerLayer = maxResourceAmountsPerLayer[l];
 				int resourcesToDistribute = maxResourceAmountPerLayer;
 				List<ResourceID> alreadyUsedResourceTypes = new List<ResourceID>();
@@ -87,8 +90,11 @@ public class GameController : MonoBehaviour
 					{
 						amount = resourcesToDistribute;
 					}
+
 					resourcesToDistribute -= amount;
-					resourceList.AddResource(resourceType, amount);
+					RequiredResources[l].AddResource(resourceType, amount);
+                    RequiredResourcesMax[l].AddResource(resourceType, amount);
+					maxAmountRequired += amount;
 				}
 			}
 
@@ -104,7 +110,8 @@ public class GameController : MonoBehaviour
 				var villager = Instantiate(VillagerPrefab, Helpers.RandomPlanePosition(VillagerStartPosCenter.position, 5f), Quaternion.identity) as Villager;
 				villager.OnResourceDroppedEvent += OnResourceGained;
 				villager.OnBakeCompleteEvent += OnBakeCompleted;
-				villager.cakeThing = ResourceDropArea;
+				villager.ResourceDropPoint = ResourceDropArea;
+				villager.Cake = Cake.transform;
 				Villagers.Add(villager);
 			}
 		}
@@ -148,13 +155,13 @@ public class GameController : MonoBehaviour
 		}
 		else if (failPercentage > 10 && failPercentage <= 50) 
 		{
-			Debug.Log("ok cake -> 2 villagers die");
-			deadVillagers = Random.Range(2, 5);
+			Debug.Log("ok cake -> 2 - 3 villagers die");
+			deadVillagers = Random.Range(2, 3 + 1);
 		}
 		else if (failPercentage > 50 && failPercentage <= 90) 
 		{
 			Debug.Log("bad cake -> 3-5 villagers die");
-			deadVillagers = Random.Range(3, 7);
+			deadVillagers = Random.Range(3, 5 + 1);
 		}
 		else if (failPercentage > 90) 
 		{
@@ -226,9 +233,26 @@ public class GameController : MonoBehaviour
 			if (currentBakeLayer == RequiredResources.Length)
 			{
 				//celebrations!!
-
+				foreach (var villager in Villagers) 
+				{
+					villager.Stop();
+				}
 			}
 		}
+
+		//update cake graphics
+		int amountRequired =0;
+		for (int l = 0; l < RequiredResources.Length; l++) 
+		{
+			for (int i = 0; i < (int)ResourceID._Amount; i++) 
+			{
+				var resource = (ResourceID) i;
+				amountRequired += RequiredResources[l].GetResource(resource);
+			}
+		}
+
+
+		Cake.SetCakeCompletionPercentage(1- (amountRequired / (float) maxAmountRequired));
 
 		return true;
 	}
@@ -253,7 +277,7 @@ public class GameController : MonoBehaviour
 	{
 		for (int i = 0; i < RequiredResources.Length; i++) 
 		{
-			RequiredResourceLayerPanels[i].Init(RequiredResources[i], true);
+			RequiredResourceLayerPanels[i].Init(RequiredResources[i], RequiredResourcesMax[i], true);
 		}
 	}
 }

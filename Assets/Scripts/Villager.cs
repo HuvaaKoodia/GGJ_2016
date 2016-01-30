@@ -7,15 +7,13 @@ public class Villager : MonoBehaviour
     public int speed = 8;
 	public float BakingDelay = 5f;
 
-    public Transform cakeThing;
+    public Transform ResourceDropPoint, Cake;
 
     private bool gotoResourcePoint, gatheringResource, movement, goToBake, baking;
 
-	Vector3 MovementTargetPosition, bakePosition;
+	Vector3 MovementTargetPosition;
 	float gatheringTimer, bakingTimer;
-	ResourceView currentResource;
-
-	public bool CarryingResourceBackToCake{get{return gotoResourcePoint;}}
+	ResourceView currentResource, nextResourceCommand;
 
 	public delegate void ResourceEvent(ResourceID resource);
 	public delegate bool BoolAction();
@@ -23,7 +21,7 @@ public class Villager : MonoBehaviour
 	public ResourceEvent OnResourceDroppedEvent;
 	public BoolAction OnBakeCompleteEvent;
 
-	public bool AutomaticalGather = true;
+	public bool AutomaticalGather = true, bakeNextCommand = false;
 
 	public GameObject SelectionCircle;
 
@@ -42,7 +40,7 @@ public class Villager : MonoBehaviour
 				//gathering done
 				gatheringResource = false;
 				gotoResourcePoint = true;
-				MovementTargetPosition = Helpers.RandomPlanePosition(cakeThing.transform.position, 3f, 3f);
+				MovementTargetPosition = Helpers.RandomPlanePosition(ResourceDropPoint.transform.position, 3f, 3f);
 				movement = true;
 			}
 			return;
@@ -52,7 +50,7 @@ public class Villager : MonoBehaviour
 			if (bakingTimer < Time.time)
 			{
 				baking = false;
-				GoToBake(bakePosition);
+				GoToBake();
 				if (OnBakeCompleteEvent != null)
 				{
 					bool successfulBake = OnBakeCompleteEvent();
@@ -88,6 +86,20 @@ public class Villager : MonoBehaviour
 				
 					if (AutomaticalGather)
 					{
+						//change command
+						if (nextResourceCommand != null)
+						{
+							bakeNextCommand = false;
+							currentResource = nextResourceCommand;
+							nextResourceCommand = null;
+						}
+						else if (bakeNextCommand)
+						{
+							bakeNextCommand = false;
+							nextResourceCommand = null;
+							GoToBake();
+							return;
+						}
 						getResource(currentResource);
 					}
 					else
@@ -112,24 +124,36 @@ public class Villager : MonoBehaviour
         movement = true;
     }
 
-	public void GoToBake (Vector3 position)
+	public void GoToBake ()
 	{
 		//interrupt previous actions
-		if (gotoResourcePoint) return;
-		if (gatheringResource) gatheringResource= false;
+		if (gotoResourcePoint) 
+		{
+			bakeNextCommand = true;
+			return;
+		}
+
+		gatheringResource= false;
 		if (currentResource != null) currentResource = null;
 
-		bakePosition = position;
 		goToBake = true;
 		movement = true;
-		MovementTargetPosition = Helpers.RandomPlanePosition(position, 5f, 5f);
+		MovementTargetPosition = Helpers.RandomPlanePosition(Cake.position, 5f, 5f);
 	}
 	
 	public void getResource(ResourceView resource)
     {
+		if (gotoResourcePoint)
+		{
+			//just change the next resource
+			nextResourceCommand = resource;
+			return;
+		}
+
 		//interrupt previous actions
-		if (gotoResourcePoint) return;
-		if (gatheringResource) gatheringResource= false;
+		baking = false;
+		gatheringResource= false;
+		goToBake = false;
 
 		currentResource = resource;
 		var newPosition = Helpers.RandomPlanePosition(resource.transform.position, 3f, 3f);
