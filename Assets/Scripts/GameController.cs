@@ -14,10 +14,12 @@ public class GameController : MonoBehaviour
 	public Transform VillagerStartPosCenter;
 	public Transform ResourceDropArea;
 
+    public YearOver YearOverPrefab;
+
 	public Timer Timer;
 
-	public static int VillagerAmount = 8;
-
+	public static int VillagerAmount = 8, CakesMade = 0;
+ 
 	ResourceList CollectedResources;
 	ResourceList[] RequiredResources;
 	int[] maxResourceAmountsPerLayer;
@@ -149,7 +151,7 @@ public class GameController : MonoBehaviour
 			Debug.Log("ok cake -> 2 villagers die");
 			deadVillagers = Random.Range(2, 5);
 		}
-		else if (failPercentage > 50 && failPercentage < 90) 
+		else if (failPercentage > 50 && failPercentage <= 90) 
 		{
 			Debug.Log("bad cake -> 3-5 villagers die");
 			deadVillagers = Random.Range(3, 7);
@@ -159,8 +161,11 @@ public class GameController : MonoBehaviour
 			Debug.Log("terrible cake (or no cake at all!)-> everyone dies");
 			deadVillagers = VillagerAmount;
 		}
-
+        CakesMade += 1;
 		VillagerAmount -= deadVillagers;
+        
+        YearOverPrefab.showResult(failPercentage, deadVillagers);
+        
 	}
 
 	void OnResourceGained(ResourceID resource)
@@ -234,7 +239,7 @@ public class GameController : MonoBehaviour
 	}
 
 
-	public static void GotoNextYear()
+	public void GotoNextYear()
 	{
 		Application.LoadLevel(Application.loadedLevel);
 	}
