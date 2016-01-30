@@ -5,13 +5,6 @@ public class InGameCameraController : MonoBehaviour
 {
     public float LookAtSpeed = 1.5f;
 
-    public Transform target1;
-    public Transform target2;
-
-    public Timer timerThing;
-
-    public float timeBetween;
-
     private float ZoomSpeed = 5;
     public float ZoomLevel;
     public float ZoomMin;
@@ -24,6 +17,8 @@ public class InGameCameraController : MonoBehaviour
     private Transform LookAtTarget;
 
     private Transform targetPosition;
+    
+    private float startingFieldOfView;
 
     private Vector3 normalPosition;
 
@@ -32,6 +27,7 @@ public class InGameCameraController : MonoBehaviour
     void Start()
     {
         normalPosition = transform.position;
+        startingFieldOfView = Camera.main.fieldOfView;
     }
 
     void Update()
@@ -45,13 +41,12 @@ public class InGameCameraController : MonoBehaviour
 
         if (Zooming != false)
         {
-            
             Camera.main.fieldOfView = Mathf.Lerp(Camera.main.fieldOfView, ZoomLevel, Time.deltaTime * ZoomSpeed);
         }
 
         if (targetPosition != null)
         {
-            normalPosition = Vector3.Lerp(transform.position, targetPosition.position, Time.deltaTime);
+            normalPosition = Vector3.Lerp(normalPosition, targetPosition.position, Time.deltaTime);
         }
 
         ShakeForce = Mathf.Lerp(ShakeForce, targetShakeForce, Time.deltaTime);       
@@ -90,5 +85,10 @@ public class InGameCameraController : MonoBehaviour
     public void MoveToPosition(Transform targetPosition)
     {
         this.targetPosition = targetPosition;
+    }
+
+    public void resetZoom(float speed)
+    {
+        Zoom(startingFieldOfView,speed);
     }
 }

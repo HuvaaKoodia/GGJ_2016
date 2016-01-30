@@ -14,6 +14,7 @@ public class GameController : MonoBehaviour
 	public Transform VillagerStartPosCenter;
 	public Transform ResourceDropArea;
 
+    public CutScene theGodCutScene;
 
     public YearOver YearOverPrefab;
 	public CakeView Cake;
@@ -127,6 +128,8 @@ public class GameController : MonoBehaviour
 			villager.Stop();
 		}
 
+        theGodCutScene.theGodShow();
+
 		int MaxAmountOfResourcesInCake = 0;
 		for (int i = 0; i < maxResourceAmountsPerLayer.Length; i++) 
 		{
@@ -170,11 +173,11 @@ public class GameController : MonoBehaviour
 			Debug.Log("terrible cake (or no cake at all!)-> everyone dies");
 			deadVillagers = VillagerAmount;
 		}
+
         CakesMade += 1;
 		VillagerAmount -= deadVillagers;
 
 		YearOverPrefab.showResult(failPercentage, deadVillagers);
-
 		
 		if (deadVillagers > 0)
 		{       	

@@ -6,28 +6,30 @@ public class CutScene : MonoBehaviour
     public InGameCameraController gameCamera;
 
     public Transform volcano;
-    public Transform villager;
-    public Transform target;
+    public Transform godLookatTarget, gameLookAtTarget;
+    public Transform godCameraPositionTarget, gameCameraPositionTarget;
 
-    // Use this for initialization
-    void Start()
+    public God theGod;
+
+    public void theGodShow()
     {
-        testCutScene();
+        StartCoroutine(godCutSceneCoroutine());
     }
 
-    private void testCutScene(){
-        StartCoroutine(testCutSceneCoroutine());
-    }
-
-    private IEnumerator testCutSceneCoroutine()
+    private IEnumerator godCutSceneCoroutine()
     {
+        gameCamera.LookAt(godLookatTarget);
+        gameCamera.MoveToPosition(godCameraPositionTarget);
+        theGod.GodAppear();
+        yield return new WaitForSeconds(1);
         gameCamera.Shake(0.3f);
         gameCamera.Zoom(10, 1);
-        gameCamera.LookAt(volcano);
-        yield return new WaitForSeconds(5);
+        yield return new WaitForSeconds(8);
+        theGod.GodDisappear();
         gameCamera.StopShake();
-        gameCamera.Zoom(40, 10);       
-        gameCamera.LookAt(villager);
-        gameCamera.MoveToPosition(target);
+        yield return new WaitForSeconds(1);
+        gameCamera.resetZoom(6);
+        gameCamera.LookAt(gameLookAtTarget);
+        gameCamera.MoveToPosition(gameCameraPositionTarget);
     }
 }
