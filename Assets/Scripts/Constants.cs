@@ -6,7 +6,7 @@ namespace Constants
 	public enum ResourceID
 	{
 		Water,
-		Leaves,
+		Sand,
 		Rock,
 		Wood,
 		Wheat,
