@@ -14,9 +14,17 @@ public class GameController : MonoBehaviour
 	public Transform VillagerStartPosCenter;
 	public Transform ResourceDropArea;
 
+	public Timer Timer;
+
+	public static int VillagerAmount = 8;
+
 	ResourceList CollectedResources;
 	ResourceList[] RequiredResources;
 	int[] maxResourceAmountsPerLayer;
+
+	int currentBakeLayer = 0;
+
+	private List<Villager> Villagers;
 
 	private void Awake()
 	{
@@ -33,6 +41,9 @@ public class GameController : MonoBehaviour
 		maxResourceAmountsPerLayer[2] = 5;
 
 		CollectedResources = new ResourceList();
+
+		//set up events
+		Timer.OnJudgementDayEvent += OnJudgementDay;
 
 		//generate goal
 		{
@@ -84,20 +95,137 @@ public class GameController : MonoBehaviour
 			UpdateRequiredResourcesGUI();
 
 			//spawn villagers
-			int amountOfVillagers = 8;
+			int amountOfVillagers = VillagerAmount;
+			Villagers = new List<Villager>();
 			for (int i = 0; i < amountOfVillagers; i++) 
 			{
 				var villager = Instantiate(VillagerPrefab, Helpers.RandomPlanePosition(VillagerStartPosCenter.position, 5f), Quaternion.identity) as Villager;
-				villager.DroppedResourceAtCake += OnResourceGained;
+				villager.OnResourceDroppedEvent += OnResourceGained;
+				villager.OnBakeCompleteEvent += OnBakeCompleted;
 				villager.cakeThing = ResourceDropArea;
+				Villagers.Add(villager);
 			}
 		}
+	}
+
+	void OnJudgementDay()
+	{
+		//stop villagers
+		foreach (var villager in Villagers) 
+		{
+			villager.Stop();
+		}
+
+		int MaxAmountOfResourcesInCake = 0;
+		for (int i = 0; i < maxResourceAmountsPerLayer.Length; i++) 
+		{
+			MaxAmountOfResourcesInCake += maxResourceAmountsPerLayer[i];
+		}
+
+		int AmountOfResourcesMissingInCake = 0;
+
+		for (int i = 0; i < RequiredResources.Length; i++) 
+		{
+			var layer = RequiredResources[i];
+			for (int j = 0; j < (int)ResourceID._Amount; j++) 
+			{
+				AmountOfResourcesMissingInCake += layer.GetResource((ResourceID)j);
+			}
+		}
+
+		int failPercentage = (int)((AmountOfResourcesMissingInCake / (float) MaxAmountOfResourcesInCake) * 100);
+		int deadVillagers = 0;
+		if (failPercentage == 0) 
+		{
+			Debug.Log("perfect cake -> no one dies");
+		}
+		else if (failPercentage > 0 && failPercentage <= 10) 
+		{
+			Debug.Log("near perfect cake -> one villager dies");
+			deadVillagers = 1;
+		}
+		else if (failPercentage > 10 && failPercentage <= 50) 
+		{
+			Debug.Log("ok cake -> 2 villagers die");
+			deadVillagers = 2;
+		}
+		else if (failPercentage > 50 && failPercentage < 90) 
+		{
+			Debug.Log("bad cake -> 3-5 villagers die");
+			deadVillagers = Random.Range(3, 6);
+		}
+		else if (failPercentage > 90) 
+		{
+			Debug.Log("terrible cake (or no cake at all!)-> everyone dies");
+			deadVillagers = VillagerAmount;
+		}
+
+		VillagerAmount -= deadVillagers;
 	}
 
 	void OnResourceGained(ResourceID resource)
 	{
 		CollectedResources.AddResource(resource, 1);
 		UpdateCollectedResourcesGUI();
+	}
+
+	bool OnBakeCompleted()
+	{
+		//check if can bake
+		var layer = RequiredResources[currentBakeLayer];
+
+		bool bakeFail = true;
+		for (int i = 0; i < (int)ResourceID._Amount; i++) 
+		{
+			var resource = (ResourceID) i;
+			int requiredAmount = layer.GetResource(resource);
+			if (requiredAmount > 0)
+			{
+				//check if resource available
+				int collectedAmount = CollectedResources.GetResource(resource);
+
+				if (collectedAmount > 0)
+				{
+					bakeFail = false;
+					CollectedResources.AddResource(resource, -1);
+					layer.AddResource(resource, -1);
+
+					UpdateRequiredResourcesGUI();
+					UpdateCollectedResourcesGUI();
+					break;
+				}
+			}
+		}
+
+		if (bakeFail) return false;
+
+		//check if layer completed
+		bool layerCompleted = true;
+		for (int i = 0; i < (int)ResourceID._Amount; i++) 
+		{
+			var resource = (ResourceID) i;
+			int resourceAmount = layer.GetResource(resource);
+			if (resourceAmount > 0)
+			{
+				layerCompleted = false;
+				break;
+			}
+		}
+
+		if (layerCompleted)
+		{
+			//move onto next layer
+			currentBakeLayer++;
+
+			//whole cake finished
+			if (currentBakeLayer == RequiredResources.Length)
+			{
+				//celebrations!!
+
+			}
+		}
+
+		return true;
 	}
 
 	void Update()
@@ -114,7 +242,7 @@ public class GameController : MonoBehaviour
 	{
 		for (int i = 0; i < RequiredResources.Length; i++) 
 		{
-			RequiredResourceLayerPanels[i].Init(RequiredResources[i]);
+			RequiredResourceLayerPanels[i].Init(RequiredResources[i], true);
 		}
 	}
 }

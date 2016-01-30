@@ -34,8 +34,17 @@ public class MouseSelection : MonoBehaviour
 				if (Physics.Raycast(ray, out hit, 100, 1 << LayerMask.NameToLayer("Resource")))
 				{
 					var resource = hit.collider.GetComponent<ResourceView>();
-					
+				
 					targetVillager.getResource(resource);
+					targetVillager.Deselect();
+					targetVillager = null;
+					return;
+				}
+				else if (Physics.Raycast(ray, out hit, 100, 1 << LayerMask.NameToLayer("Cake")))
+				{
+					targetVillager.GoToBake(hit.transform.position);
+					targetVillager.Deselect();
+					targetVillager = null;
 					return;
 				}
 			}
@@ -44,6 +53,7 @@ public class MouseSelection : MonoBehaviour
             if (Physics.Raycast(ray, out hit, 100,  1 << LayerMask.NameToLayer("Villager")))
             {
                 targetVillager = hit.transform.GetComponent<Villager>();
+				targetVillager.Select();
             }
 
             /*else if (Physics.Raycast(ray, out hit, 100, 1 << LayerMask.NameToLayer("Ground")))

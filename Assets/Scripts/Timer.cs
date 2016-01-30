@@ -4,31 +4,25 @@ using System.Collections;
 
 public class Timer : MonoBehaviour
 {
-    public float timeInMinute;
-
-    public float timeRemaining;
+    public int timeInSeconds;
+    private float timeRemaining;
 
     public bool isJudgementDay;
-
     public Text timerText;
-
-    void Awake()
-    {
-        timeInMinute = 0;
-    }
-
+	
     // Use this for initialization
     void Start()
     {
         isJudgementDay = false;
-        timeRemaining = timeInMinute*60 + 1;
+	timeRemaining = timeInSeconds + 1;
     }
 
     // Update is called once per frame
     void Update()
     {
+	if (isJudgementDay) return;
         timeRemaining -= Time.deltaTime;
-        if (timeRemaining > 0 && isJudgementDay == false)
+        if (timeRemaining > 0)
         {
             float minutes = Mathf.Floor(timeRemaining / 60);
             float seconds = Mathf.Floor(timeRemaining % 60);
@@ -36,8 +30,16 @@ public class Timer : MonoBehaviour
         }
         else
         {
-            isJudgementDay = true;
-            timeRemaining = timeInMinute * 60 + 1;
+		StartJudgement();
         }
     }
+
+	public void StartJudgement()
+	{
+		isJudgementDay = true;
+		timerText.gameObject.SetActive(true);
+		if (OnJudgementDayEvent != null) OnJudgementDayEvent();
+	}
+
+	public System.Action OnJudgementDayEvent;
 }
