@@ -1692,6 +1692,12 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 398, y: 284.399994}
   m_Pivot: {x: .5, y: 0}
+--- !u!114 &1440027269 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 11429428, guid: bbfa8ed0dfe47cd4e824d199ec973064,
+    type: 2}
+  m_PrefabInternal: {fileID: 1577615961}
+  m_Script: {fileID: 11500000, guid: abfa7b19861a9f94eaf4b1d3a345fc7b, type: 3}
 --- !u!1 &1507181745
 GameObject:
   m_ObjectHideFlags: 0
@@ -1765,6 +1771,88 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 11
+--- !u!1001 &1577615961
+Prefab:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 22477784, guid: bbfa8ed0dfe47cd4e824d199ec973064, type: 2}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 22477784, guid: bbfa8ed0dfe47cd4e824d199ec973064, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 22477784, guid: bbfa8ed0dfe47cd4e824d199ec973064, type: 2}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 22477784, guid: bbfa8ed0dfe47cd4e824d199ec973064, type: 2}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 22477784, guid: bbfa8ed0dfe47cd4e824d199ec973064, type: 2}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 22477784, guid: bbfa8ed0dfe47cd4e824d199ec973064, type: 2}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 22477784, guid: bbfa8ed0dfe47cd4e824d199ec973064, type: 2}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 22477784, guid: bbfa8ed0dfe47cd4e824d199ec973064, type: 2}
+      propertyPath: m_RootOrder
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 22477784, guid: bbfa8ed0dfe47cd4e824d199ec973064, type: 2}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 22477784, guid: bbfa8ed0dfe47cd4e824d199ec973064, type: 2}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 22477784, guid: bbfa8ed0dfe47cd4e824d199ec973064, type: 2}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 22477784, guid: bbfa8ed0dfe47cd4e824d199ec973064, type: 2}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 22477784, guid: bbfa8ed0dfe47cd4e824d199ec973064, type: 2}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 22477784, guid: bbfa8ed0dfe47cd4e824d199ec973064, type: 2}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 22477784, guid: bbfa8ed0dfe47cd4e824d199ec973064, type: 2}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 22477784, guid: bbfa8ed0dfe47cd4e824d199ec973064, type: 2}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 22477784, guid: bbfa8ed0dfe47cd4e824d199ec973064, type: 2}
+      propertyPath: m_Pivot.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 22477784, guid: bbfa8ed0dfe47cd4e824d199ec973064, type: 2}
+      propertyPath: m_Pivot.y
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 100100000, guid: bbfa8ed0dfe47cd4e824d199ec973064, type: 2}
+  m_IsPrefabParent: 0
 --- !u!1 &1616103666
 GameObject:
   m_ObjectHideFlags: 0
@@ -2221,6 +2309,7 @@ MonoBehaviour:
   VillagerPrefab: {fileID: 11447638, guid: 714739ba95c2831419726857c7f9da5c, type: 2}
   VillagerStartPosCenter: {fileID: 74244387}
   ResourceDropArea: {fileID: 757566358}
+  YearOverPrefab: {fileID: 1440027269}
   Cake: {fileID: 1307815643}
   Timer: {fileID: 2079745208}
   lightningSource: {fileID: 2079745211}
@@ -2247,7 +2336,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7906b6939ae2a8044928e528714efc88, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeInSeconds: 180
+  timeInSeconds: 10
   isJudgementDay: 0
   timerText: {fileID: 1960676487}
 --- !u!114 &2079745209
