@@ -8,6 +8,7 @@ public class Villager : MonoBehaviour
 	public float BakingDelay = 5f;
 
     public Transform ResourceDropPoint, Cake;
+	public Animator Animator;
 
     private bool gotoResourcePoint, gatheringResource, movement, goToBake, baking;
 
@@ -31,8 +32,20 @@ public class Villager : MonoBehaviour
         gotoResourcePoint = false;
     }
 
+	public void Die()
+	{
+		Animator.SetBool("Dead", true);
+		dead = true;
+	}
+
+	bool dead = false;
+
     void Update()
     {
+		if (dead) return;
+
+		Animator.SetBool("Walking", movement);
+
 		if (gatheringResource)
 		{
 			if (gatheringTimer < Time.time)
@@ -63,11 +76,16 @@ public class Villager : MonoBehaviour
 			}
 			return;
 		}
-
+		
         if (movement == true)
         {
-            this.transform.position += (MovementTargetPosition - transform.position).normalized * Time.deltaTime * speed;
+			var movementDirection = (MovementTargetPosition - transform.position).normalized;
+            this.transform.position += movementDirection * Time.deltaTime * speed;
             
+			int direction = (int)Mathf.Sign(Vector3.Dot(Camera.main.transform.right, movementDirection));
+			Animator.transform.localScale = new Vector3(direction, 1, 1);
+
+
             if (Vector3.Distance(this.transform.position, MovementTargetPosition) < Time.deltaTime * speed)
             {
 				//reached target
@@ -115,13 +133,6 @@ public class Villager : MonoBehaviour
 				}
             }
         }
-    }
-
-    public void goToPoint(Vector3 newPosition)
-    {
-        newPosition.y = transform.position.y;
-        MovementTargetPosition = newPosition;
-        movement = true;
     }
 
 	public void GoToBake ()

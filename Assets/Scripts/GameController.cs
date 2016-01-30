@@ -28,6 +28,8 @@ public class GameController : MonoBehaviour
 
 	int currentBakeLayer = 0, maxAmountRequired;
 
+	public AudioSource lightningSource;
+
 	private List<Villager> Villagers;
 
 	private void Awake()
@@ -170,9 +172,19 @@ public class GameController : MonoBehaviour
 		}
         CakesMade += 1;
 		VillagerAmount -= deadVillagers;
-        
-        YearOverPrefab.showResult(failPercentage, deadVillagers);
-        
+
+		YearOverPrefab.showResult(failPercentage, deadVillagers);
+
+		
+		if (deadVillagers > 0)
+		{       	
+			lightningSource.Play();
+		}
+
+		for (int v = 0; v < deadVillagers; v++) 
+		{
+			Villagers[v].Die();
+		}
 	}
 
 	void OnResourceGained(ResourceID resource)
