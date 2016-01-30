@@ -24,7 +24,7 @@ public class Villager : MonoBehaviour
 
 	public bool AutomaticalGather = true, bakeNextCommand = false;
 
-	public GameObject SelectionCircle;
+	public GameObject SelectionCircle, BakingHat;
 
     void Start()
     {
@@ -35,6 +35,7 @@ public class Villager : MonoBehaviour
 	public void Die()
 	{
 		Animator.SetBool("Dead", true);
+		BakingHat.SetActive(false);
 		dead = true;
 	}
 
@@ -93,6 +94,7 @@ public class Villager : MonoBehaviour
 
 				if (goToBake)
 				{
+					BakingHat.SetActive(true);
 					baking = true;
 					bakingTimer = Time.time + BakingDelay;
 				}
@@ -162,7 +164,11 @@ public class Villager : MonoBehaviour
 		}
 
 		//interrupt previous actions
-		baking = false;
+		if (baking)
+		{
+			baking = false;
+			BakingHat.SetActive(false);
+		}
 		gatheringResource= false;
 		goToBake = false;
 
