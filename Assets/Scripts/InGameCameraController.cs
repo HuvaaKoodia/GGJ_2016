@@ -3,26 +3,23 @@ using System.Collections;
 
 public class InGameCameraController : MonoBehaviour
 {
-    public float LookAtSpeed = 1.5f;
+    private float LookAtSpeed = 1.5f;
 
     private float ZoomSpeed = 5;
-    public float ZoomLevel;
-    public float ZoomMin;
-    public float ZoomMax;
+	private float ZoomTarget;
 
     bool switchFocus;
-
     bool Zooming, Shaking;
 
     private Transform LookAtTarget;
 
     private Transform targetPosition;
     
-    private float startingFieldOfView;
+	private float startingFieldOfView, lookAtSpeed;
 
     private Vector3 normalPosition;
 
-    private float ShakeForce,targetShakeForce;
+	private float ShakeForce,targetShakeForce,  targetZoom, moveToSpeed ;
 
     void Start()
     {
@@ -41,12 +38,12 @@ public class InGameCameraController : MonoBehaviour
 
         if (Zooming != false)
         {
-            Camera.main.fieldOfView = Mathf.Lerp(Camera.main.fieldOfView, ZoomLevel, Time.deltaTime * ZoomSpeed);
+            Camera.main.fieldOfView = Mathf.Lerp(Camera.main.fieldOfView, ZoomTarget, Time.deltaTime * ZoomSpeed);
         }
 
         if (targetPosition != null)
         {
-            normalPosition = Vector3.Lerp(normalPosition, targetPosition.position, Time.deltaTime);
+			normalPosition = Vector3.Lerp(normalPosition, targetPosition.position, Time.deltaTime * moveToSpeed );
         }
 
         ShakeForce = Mathf.Lerp(ShakeForce, targetShakeForce, Time.deltaTime);       
@@ -60,8 +57,9 @@ public class InGameCameraController : MonoBehaviour
         transform.rotation = rotation;
     }
 
-    public void LookAt(Transform target)
+    public void LookAt(Transform target, float lookAtSpeed)
     {
+		this.LookAtSpeed = lookAtSpeed;
         LookAtTarget = target;
     }
 
@@ -69,7 +67,7 @@ public class InGameCameraController : MonoBehaviour
     {
         Zooming = true;
         ZoomSpeed = targetZoomSpeed;
-        ZoomLevel = Mathf.Clamp(targetZoomLevel, ZoomMin, ZoomMax);
+        ZoomTarget = targetZoomLevel;
     }
 
     public void Shake(float targetShakeForce)
@@ -82,8 +80,9 @@ public class InGameCameraController : MonoBehaviour
         targetShakeForce = 0;
     }
 
-    public void MoveToPosition(Transform targetPosition)
+    public void MoveToPosition(Transform targetPosition, float speed)
     {
+		moveToSpeed = speed;
         this.targetPosition = targetPosition;
     }
 

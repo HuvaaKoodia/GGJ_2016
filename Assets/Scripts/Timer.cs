@@ -14,7 +14,7 @@ public class Timer : MonoBehaviour
     void Start()
     {
         isJudgementDay = false;
-	timeRemaining = timeInSeconds + 1;
+		timeRemaining = timeInSeconds + 1;
     }
 
     // Update is called once per frame

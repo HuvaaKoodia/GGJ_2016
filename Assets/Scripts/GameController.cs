@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Constants;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
@@ -14,12 +15,17 @@ public class GameController : MonoBehaviour
 	public Transform VillagerStartPosCenter;
 	public Transform ResourceDropArea;
 
-    public CutScene theGodCutScene;
+	public Canvas GUICanvas;
+	public Text YearText;
+	public GameObject UIBasics;
+
+	public CutScene theGodCutScene;
 
     public YearOver YearOverPrefab;
 	public CakeView Cake;
 
 	public Timer Timer;
+	public MouseSelection MouseSelection;
 
 	public static int VillagerAmount = 10, CakesMade = 0;
  
@@ -38,25 +44,29 @@ public class GameController : MonoBehaviour
 		I = this;
 	}
 
-	private void Start()
+	private IEnumerator Start()
 	{
+		Timer.enabled = false;
+		GUICanvas.enabled = false;
+		MouseSelection.enabled = false;
+
 		//set basic values
 		maxResourceAmountsPerLayer = new int[3];
-
+		
 		maxResourceAmountsPerLayer[0] = 30;
 		maxResourceAmountsPerLayer[1] = 15;
 		maxResourceAmountsPerLayer[2] = 5;
-
+		
 		CollectedResources = new ResourceList();
-
+		
 		//set up events
 		Timer.OnJudgementDayEvent += OnJudgementDay;
-
+		
 		//generate goal
 		{
 			int layerAmount = 3;
 			int maxResourceTypesPerLayer = 3;
-
+			
 			RequiredResources = new ResourceList[layerAmount];
 			RequiredResourcesMax = new ResourceList[layerAmount];
 			for (int l = 0; l < layerAmount; l++) 
@@ -64,13 +74,13 @@ public class GameController : MonoBehaviour
 				//create resource layer
 				RequiredResources[l] = new ResourceList();
 				RequiredResourcesMax [l] = new ResourceList();
-
+				
 				//add resources to layer
 				int amountOfResourcesTypes = Random.Range(1, (maxResourceTypesPerLayer - l) + 1);
 				int maxResourceAmountPerLayer = maxResourceAmountsPerLayer[l];
 				int resourcesToDistribute = maxResourceAmountPerLayer;
 				List<ResourceID> alreadyUsedResourceTypes = new List<ResourceID>();
-
+				
 				for (int r = 0; r < amountOfResourcesTypes; r++)
 				{
 					//generate resource
@@ -81,10 +91,10 @@ public class GameController : MonoBehaviour
 					}
 					while(alreadyUsedResourceTypes.Contains(resourceType));
 					alreadyUsedResourceTypes.Add(resourceType);
-
+					
 					//add resource amount
 					int amount = 0;
-
+					
 					if (r < amountOfResourcesTypes - 1)
 					{
 						amount = Random.Range(1,  resourcesToDistribute - (amountOfResourcesTypes - 1 - r) + 1);
@@ -93,18 +103,18 @@ public class GameController : MonoBehaviour
 					{
 						amount = resourcesToDistribute;
 					}
-
+					
 					resourcesToDistribute -= amount;
 					RequiredResources[l].AddResource(resourceType, amount);
-                    RequiredResourcesMax[l].AddResource(resourceType, amount);
+					RequiredResourcesMax[l].AddResource(resourceType, amount);
 					maxAmountRequired += amount;
 				}
 			}
-
+			
 			//set GUI
 			UpdateCollectedResourcesGUI();
 			UpdateRequiredResourcesGUI();
-
+			
 			//spawn villagers
 			int amountOfVillagers = VillagerAmount;
 			Villagers = new List<Villager>();
@@ -118,6 +128,22 @@ public class GameController : MonoBehaviour
 				Villagers.Add(villager);
 			}
 		}
+
+		//start cutscenes:
+		yield return new WaitForSeconds(2f);
+
+		yield return StartCoroutine(theGodCutScene.godCutSceneCoroutine());
+
+		yield return new WaitForSeconds(1f);
+		GUICanvas.enabled = true;
+		YearText.text = "Year "+(CakesMade + 1);
+		YearText.gameObject.SetActive( true);
+		UIBasics.SetActive(false);
+		yield return new WaitForSeconds(3f);
+		YearText.gameObject.SetActive( false);
+		Timer.enabled = true;
+		UIBasics.SetActive(true);
+		MouseSelection.enabled = true;
 	}
 
 	void OnJudgementDay()
@@ -127,8 +153,6 @@ public class GameController : MonoBehaviour
 		{
 			villager.Stop();
 		}
-
-        theGodCutScene.theGodShow();
 
 		int MaxAmountOfResourcesInCake = 0;
 		for (int i = 0; i < maxResourceAmountsPerLayer.Length; i++) 
