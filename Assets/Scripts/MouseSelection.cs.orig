@@ -36,6 +36,7 @@ public class MouseSelection : MonoBehaviour
         {
             ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
+<<<<<<< 8cb7a6e302e9fab699da4762afb79a5dedb6559c
             bool commandGiven = false;
             
             //find resource or cake
@@ -54,18 +55,44 @@ public class MouseSelection : MonoBehaviour
              {
                 foreach (var aVillager in villagers)
                 {
-                    aVillager.GoToBake();
+                    aVillager.GoToBake(hit.transform.position);
                     aVillager.Deselect();
                     commandGiven = true;
                 }
              }
+=======
+			//find resource or cake
+			if (targetVillager)
+			{
+				if (Physics.Raycast(ray, out hit, 100, 1 << LayerMask.NameToLayer("Resource")))
+				{
+					var resource = hit.collider.GetComponent<ResourceView>();
+				
+					targetVillager.getResource(resource);
+					targetVillager.Deselect();
+					targetVillager = null;
+					return;
+				}
+				else if (Physics.Raycast(ray, out hit, 100, 1 << LayerMask.NameToLayer("Cake")))
+				{
+					targetVillager.GoToBake();
+					targetVillager.Deselect();
+					targetVillager = null;
+					return;
+				}
+			}
+>>>>>>> 04beecd4787ca1b450a2dcec5d20b88dd91d9a4f
 
             if (commandGiven) villagers.Clear();
             
 			//find villager
             if (Physics.Raycast(ray, out hit, 100,  1 << LayerMask.NameToLayer("Villager")))
             {
+<<<<<<< 8cb7a6e302e9fab699da4762afb79a5dedb6559c
 
+=======
+				if (targetVillager) targetVillager.Deselect();
+>>>>>>> 04beecd4787ca1b450a2dcec5d20b88dd91d9a4f
                 targetVillager = hit.transform.GetComponent<Villager>();
                 if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.RightControl))
                 {

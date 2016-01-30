@@ -26,11 +26,11 @@ public class Timer : MonoBehaviour
         {
             float minutes = Mathf.Floor(timeRemaining / 60);
             float seconds = Mathf.Floor(timeRemaining % 60);
-            timerText.text = "Time left : " + minutes.ToString() + "." + seconds.ToString();
+			timerText.text = string.Format("Time left : {0}.{1:00}", minutes, seconds);
         }
         else
         {
-		StartJudgement();
+			StartJudgement();
         }
     }
 
