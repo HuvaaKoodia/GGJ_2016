@@ -147,12 +147,12 @@ public class GameController : MonoBehaviour
 		else if (failPercentage > 10 && failPercentage <= 50) 
 		{
 			Debug.Log("ok cake -> 2 villagers die");
-			deadVillagers = 2;
+			deadVillagers = Random.Range(2, 5);
 		}
 		else if (failPercentage > 50 && failPercentage < 90) 
 		{
 			Debug.Log("bad cake -> 3-5 villagers die");
-			deadVillagers = Random.Range(3, 6);
+			deadVillagers = Random.Range(3, 7);
 		}
 		else if (failPercentage > 90) 
 		{
@@ -230,7 +230,13 @@ public class GameController : MonoBehaviour
 
 	void Update()
 	{
-		if (Input.GetKeyDown(KeyCode.R)) Application.LoadLevel(Application.loadedLevel);
+		if (Input.GetKeyDown(KeyCode.R)) GotoNextYear();
+	}
+
+
+	public static void GotoNextYear()
+	{
+		Application.LoadLevel(Application.loadedLevel);
 	}
 
 	void UpdateCollectedResourcesGUI()
