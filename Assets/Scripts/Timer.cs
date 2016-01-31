@@ -40,6 +40,7 @@ public class Timer : MonoBehaviour
         }
         else
         {
+			Hourglass.SetCompletionPercentage(1f);
 			StartJudgement();
         }
     }

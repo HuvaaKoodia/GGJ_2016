@@ -8,6 +8,7 @@ public class ResourcePanel : MonoBehaviour
 {
 	public List<GameObject>  Items;
 	public List<Text>  Values;
+	public CanvasGroup CanvasGroup;
 
 	public void Init(ResourceList list)
 	{

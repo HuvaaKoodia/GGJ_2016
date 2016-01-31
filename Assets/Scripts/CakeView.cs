@@ -9,6 +9,8 @@ public class CakeView : MonoBehaviour
 	public Image Image;
 	public List<Sprite> Sprites;
 
+	public Sprite OptionalEndSprite;
+
 	private int currentIndex = -1;
 
 	void Start()
@@ -18,8 +20,17 @@ public class CakeView : MonoBehaviour
 
 	public void SetCompletionPercentage(float percentComplete)
 	{
-		int correctIndex = Mathf.RoundToInt(percentComplete * (Sprites.Count - 1));
+		int correctIndex = (int)Mathf.Floor(percentComplete * (Sprites.Count));
+
+		if (percentComplete == 1 && OptionalEndSprite != null && ((Image && Image.sprite != OptionalEndSprite) || (Sprite && Sprite.sprite != OptionalEndSprite)))
+		{
+			if (Sprite) Sprite.sprite = OptionalEndSprite;
+			if (Image) Image.sprite = OptionalEndSprite;
+			return;
+		}
+
 		if (currentIndex == correctIndex) return;
+
 		currentIndex = correctIndex;
 		if (Sprite)
 		{

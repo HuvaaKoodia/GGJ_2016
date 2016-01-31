@@ -194,6 +194,7 @@ GameObject:
   - 224: {fileID: 22487240}
   - 114: {fileID: 11419156}
   - 114: {fileID: 11461084}
+  - 225: {fileID: 22568942}
   m_Layer: 5
   m_Name: ResourceList
   m_TagString: Untagged
@@ -414,6 +415,7 @@ MonoBehaviour:
   - {fileID: 11459976}
   - {fileID: 11495210}
   - {fileID: 11477410}
+  CanvasGroup: {fileID: 22568942}
 --- !u!114 &11423110
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1198,11 +1200,11 @@ RectTransform:
   - {fileID: 22452410}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_AnchorMin: {x: .5, y: 0}
-  m_AnchorMax: {x: .5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 145.5}
-  m_SizeDelta: {x: 84.1999969, y: 32}
-  m_Pivot: {x: .5, y: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: 72.3000031, y: 3.99999142}
+  m_SizeDelta: {x: -77.8000031, y: 28}
+  m_Pivot: {x: 0, y: 0}
 --- !u!224 &22491144
 RectTransform:
   m_ObjectHideFlags: 1
@@ -1237,6 +1239,17 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 32, y: 32}
   m_Pivot: {x: 0, y: .5}
+--- !u!225 &22568942
+CanvasGroup:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 169382}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1

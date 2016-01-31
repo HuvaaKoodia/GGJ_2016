@@ -43,7 +43,14 @@ public class GameController : MonoBehaviour
 
 	private IEnumerator Start()
 	{
-		if (StartInMenu) VillagerAmount = 10;
+		if (StartInMenu)
+		{
+			VillagerAmount = 10;
+			CakesMade = 0;
+			StartMenu.SetActive(true);
+		}
+
+		Timer.Hourglass.gameObject.SetActive(false);
 
 		Timer.enabled = false;
 		MouseSelection.enabled = false;
@@ -55,7 +62,7 @@ public class GameController : MonoBehaviour
 		maxResourceAmountsPerLayer[1] = 15;
 		maxResourceAmountsPerLayer[2] = 5;
 
-		LayerResourceTypeAmounts = new int[6,3];
+		LayerResourceTypeAmounts = new int[5,3];
 
 		LayerResourceTypeAmounts[0,0] = 2;
 		LayerResourceTypeAmounts[0,1] = 1;
@@ -76,10 +83,6 @@ public class GameController : MonoBehaviour
 		LayerResourceTypeAmounts[4,0] = 3;
 		LayerResourceTypeAmounts[4,1] = 3;
 		LayerResourceTypeAmounts[4,2] = 2;
-		
-		LayerResourceTypeAmounts[5,0] = 4;
-		LayerResourceTypeAmounts[5,1] = 3;
-		LayerResourceTypeAmounts[5,2] = 2;
 
 		CollectedResources = new ResourceList();
 
@@ -91,7 +94,6 @@ public class GameController : MonoBehaviour
 		//generate goal
 		{
 			int layerAmount = 3;
-			int maxResourceTypesPerLayer = 3;
 			
 			RequiredResources = new ResourceList[layerAmount];
 			RequiredResourcesMax = new ResourceList[layerAmount];
@@ -173,11 +175,15 @@ public class GameController : MonoBehaviour
 		GUICanvas.enabled = true;
 		YearText.text = "Year "+(CakesMade + 1);
 		YearText.gameObject.SetActive(true);
-
+		
 		yield return new WaitForSeconds(3f);
-		YearText.gameObject.SetActive(false);
+
 		Timer.enabled = true;
+		//yield return new WaitForSeconds(0.35f);
+		
+		YearText.gameObject.SetActive(false);
 		UIBasics.SetActive(true);
+		Timer.Hourglass.gameObject.SetActive(true);
 		MouseSelection.enabled = true;
 		Music.Play();
 	}
@@ -199,19 +205,20 @@ public class GameController : MonoBehaviour
 		StartCoroutine(JudgementDayCoroutine());
 	}
 
-	IEnumerator JudgementDayCoroutine()
+	IEnumerator JudgementDayCoroutine(int fixedFailPercentage = -1)
 	{
-		Music.Stop();
-
 		//hide stuff
 		UIBasics.SetActive(false);
+		Timer.Hourglass.gameObject.SetActive(true);
+		Timer.enabled = false;
+		Timer.isJudgementDay = true;
 
 		//stop villagers
 		foreach (var villager in Villagers) 
 		{
 			villager.Stop();
 		}
-
+		
 		int MaxAmountOfResourcesInCake = 0;
 		for (int i = 0; i < maxResourceAmountsPerLayer.Length; i++) 
 		{
@@ -233,36 +240,36 @@ public class GameController : MonoBehaviour
 		int deadVillagers = 0;
 		int cutSceneType = 0;
 
-		failPercentage = 60;
+		if( fixedFailPercentage >= 0) failPercentage = fixedFailPercentage;
 
 		if (failPercentage == 0) 
 		{
-			Debug.Log("perfect cake -> no one dies");
+			Debug.LogError("perfect cake -> no one dies");
 			cutSceneType = 1;
 			CakesMade += 1;
 		}
 		else if (failPercentage > 0 && failPercentage <= 10) 
 		{
-			Debug.Log("near perfect cake -> one villager dies");
+			Debug.LogError("near perfect cake -> one villager dies");
 			deadVillagers = 1;
 			CakesMade += 1;
 		}
 		else if (failPercentage > 10 && failPercentage <= 50) 
 		{
-			Debug.Log("ok cake -> 2 - 3 villagers die");
+			Debug.LogError("ok cake -> 2 - 3 villagers die");
 			deadVillagers = Random.Range(2, 3 + 1);
 			CakesMade += 1;
 		}
 		else if (failPercentage > 50 && failPercentage <= 90) 
 		{
-			Debug.Log("bad cake -> 3-5 villagers die");
+			Debug.LogError("bad cake -> 3-5 villagers die");
 			deadVillagers = Random.Range(3, 5 + 1);
 			cutSceneType = 2;
 			CakesMade += 1;
 		}
 		else if (failPercentage > 90) 
 		{
-			Debug.Log("terrible cake (or no cake at all!)-> everyone dies");
+			Debug.LogError("terrible cake (or no cake at all!)-> everyone dies");
 			deadVillagers = VillagerAmount;
 			cutSceneType = 2;
 		}
@@ -271,17 +278,35 @@ public class GameController : MonoBehaviour
 
 		VillagerAmount -= deadVillagers;
 
+		Kong.Play();
+		yield return null;
+		yield return null;
+		yield return null;
+		yield return null;
+		Music.Stop();
+
+		//stop music
+		/*while (Music.volume > 0)
+		{
+			Music.volume -= Time.deltaTime * 0.5f;
+			yield return null;
+		}
+		Music.Stop();*/
+
+		yield return new WaitForSeconds(2.5f);
+	
+		Timer.Hourglass.gameObject.SetActive(false);
+
 		//god cutscene
 
 		//neutral god
-		if (cutSceneType == 0) yield return StartCoroutine(theGodCutScene.godCutSceneCoroutine());
+		if (cutSceneType == 0) yield return StartCoroutine(theGodCutScene.godHappyCutSceneCoroutine());
 		
 		//happy god
-		if (cutSceneType == 1) yield return StartCoroutine(theGodCutScene.godCutSceneCoroutine());
+		else if (cutSceneType == 1) yield return StartCoroutine(theGodCutScene.godHappyCutSceneCoroutine());
 
 		//angry god
-		if (cutSceneType == 2) yield return StartCoroutine(theGodCutScene.godAngryCutSceneCoroutine());
-
+		else if (cutSceneType == 2) yield return StartCoroutine(theGodCutScene.godAngryCutSceneCoroutine());
 
 		for (int v = 0; v < deadVillagers; v++) 
 		{
@@ -363,8 +388,10 @@ public class GameController : MonoBehaviour
 			//whole cake finished
 			if (currentBakeLayer == RequiredResources.Length)
 			{
+				Cake.SetCompletionPercentage(1f);
 				//celebrations!!
 				OnJudgementDay();
+				return true;
 			}
 		}
 
@@ -378,8 +405,7 @@ public class GameController : MonoBehaviour
 				amountRequired += RequiredResources[l].GetResource(resource);
 			}
 		}
-
-
+		
 		Cake.SetCompletionPercentage(1- (amountRequired / (float) maxAmountRequired));
 
 		return true;
@@ -387,7 +413,47 @@ public class GameController : MonoBehaviour
 
 	void Update()
 	{
+#if UNITY_EDITOR
+		//restart
 		if (Input.GetKeyDown(KeyCode.R)) GotoNextYear();
+
+		//judgement day
+		if (Input.GetKeyDown(KeyCode.J))
+		{
+			OnJudgementDay();
+		}
+
+		//fixed judgement days
+		if (Input.GetKeyDown(KeyCode.Alpha1))
+		{
+			StartCoroutine(JudgementDayCoroutine(0));
+		}
+		if (Input.GetKeyDown(KeyCode.Alpha2))
+		{
+			StartCoroutine(JudgementDayCoroutine(10));
+		}
+		if (Input.GetKeyDown(KeyCode.Alpha3))
+		{
+			StartCoroutine(JudgementDayCoroutine(50));
+		}
+		if (Input.GetKeyDown(KeyCode.Alpha4))
+		{
+			StartCoroutine(JudgementDayCoroutine(90));
+		}
+		if (Input.GetKeyDown(KeyCode.Alpha5))
+		{
+			StartCoroutine(JudgementDayCoroutine(100));
+		}
+
+		if (Input.GetKeyDown(KeyCode.Y))
+		{
+			for (int i = 0; i < (int)ResourceID._Amount; i++) 
+			{
+				CollectedResources.AddResource((ResourceID)i, 1000);
+			}
+			UpdateCollectedResourcesGUI();
+		}
+#endif
 	}
 
 
@@ -405,6 +471,7 @@ public class GameController : MonoBehaviour
 	{
 		for (int i = 0; i < RequiredResources.Length; i++) 
 		{
+			RequiredResourceLayerPanels[i].CanvasGroup.alpha = (i == currentBakeLayer) ? 1f : 0.42f;
 			RequiredResourceLayerPanels[i].Init(RequiredResources[i], RequiredResourcesMax[i], true);
 		}
 	}

@@ -27,12 +27,14 @@ public class MouseSelection : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+		if (timerThing.isJudgementDay) return;
+
         selection();
     }
 
     void selection()
     {
-        if (Input.GetKeyDown(KeyCode.Mouse0) && timerThing.isJudgementDay == false)
+		if ((Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Mouse1)))
         {
             ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -70,7 +72,7 @@ public class MouseSelection : MonoBehaviour
             if (Physics.Raycast(ray, out hit, 1000,  1 << LayerMask.NameToLayer("Villager")))
             {
 
-                targetVillager = hit.transform.GetComponent<Villager>();
+                targetVillager = hit.transform.GetComponentInParent<Villager>();
                 if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.RightControl))
                 {
                     villagers.Add(targetVillager);
@@ -91,7 +93,7 @@ public class MouseSelection : MonoBehaviour
                 mousePosition1 = Input.mousePosition;
             }
         }
-        else if (Input.GetMouseButtonUp(0) && isSelecting)
+		else if (isSelecting && (Input.GetMouseButtonUp(0) || Input.GetKeyUp(KeyCode.Mouse1)))
         {
             foreach (var villager in villagers) villager.Deselect();
             villagers.Clear();
@@ -102,14 +104,41 @@ public class MouseSelection : MonoBehaviour
             var viewportBounds = Utils.GetViewportBounds(camera, mousePosition1, Input.mousePosition);
             foreach (var villager in allVillagers)
             {
-                if (viewportBounds.Contains(camera.WorldToViewportPoint(villager.transform.position)))
-                {
+				var bounds = villager.transform.GetComponentInChildren<BoxCollider>().bounds;
+			
+				Vector3 point1 = bounds.center + Vector3.up * bounds.extents.y + Vector3.right * bounds.extents.x + Vector3.forward * bounds.extents.z;
+				Vector3 point2 = bounds.center + Vector3.up * bounds.extents.y - Vector3.right * bounds.extents.x + Vector3.forward * bounds.extents.z;
+				Vector3 point3 = bounds.center + Vector3.up * bounds.extents.y + Vector3.right * bounds.extents.x - Vector3.forward * bounds.extents.z;
+				Vector3 point4 = bounds.center + Vector3.up * bounds.extents.y - Vector3.right * bounds.extents.x - Vector3.forward * bounds.extents.z;
+
+				Vector3 point5 = bounds.center - Vector3.up * bounds.extents.y + Vector3.right * bounds.extents.x + Vector3.forward * bounds.extents.z;
+				Vector3 point6 = bounds.center - Vector3.up * bounds.extents.y - Vector3.right * bounds.extents.x + Vector3.forward * bounds.extents.z;
+				Vector3 point7 = bounds.center - Vector3.up * bounds.extents.y + Vector3.right * bounds.extents.x - Vector3.forward * bounds.extents.z;
+				Vector3 point8 = bounds.center - Vector3.up * bounds.extents.y - Vector3.right * bounds.extents.x - Vector3.forward * bounds.extents.z;
+
+				if (
+					JustDoIt(viewportBounds, point1, camera) ||
+					JustDoIt(viewportBounds, point2, camera) ||
+					JustDoIt(viewportBounds, point3, camera) ||
+					JustDoIt(viewportBounds, point4, camera) ||
+					JustDoIt(viewportBounds, point5, camera) ||
+					JustDoIt(viewportBounds, point6, camera) ||
+					JustDoIt(viewportBounds, point7, camera) ||
+					JustDoIt(viewportBounds, point8, camera)
+					)
+				{
                     villagers.Add(villager);
                     villager.Select();
-                }
+				}
+
             }
         }
     }
+
+	bool JustDoIt(Bounds viewportBounds, Vector3 point, Camera camera)
+	{
+		return viewportBounds.Contains(camera.WorldToViewportPoint(point));
+	}
 
     void OnGUI()
     {

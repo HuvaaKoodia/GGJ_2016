@@ -30,6 +30,7 @@ public class Villager : MonoBehaviour
     {
         MovementTargetPosition = transform.position;
         gotoResourcePoint = false;
+		CarryResource.gameObject.SetActive(false);
 
 		//randomize starting direction
 		Animator.transform.localScale = new Vector3(Random.Range(0,2) == 0 ? -1 : 1, 1, 1);
@@ -38,17 +39,28 @@ public class Villager : MonoBehaviour
 	public void Die()
 	{
 		Animator.SetBool("Dead", true);
+
 		BakingHat.SetActive(false);
+		CarryResource.gameObject.SetActive(false);
+
+		Animator.SetBool("Carrying", false);
+		Animator.SetBool("Walking", false);
+		
 		dead = true;
 	}
 
 	bool dead = false;
+	public SpriteRenderer CarryResource;
+	public Sprite[] CarrySprites;
 
     void Update()
     {
 		if (dead) return;
 
+		Animator.SetBool("Carrying", gotoResourcePoint);
 		Animator.SetBool("Walking", movement);
+
+
 
 		if (gatheringResource)
 		{
@@ -59,6 +71,9 @@ public class Villager : MonoBehaviour
 				gotoResourcePoint = true;
 				MovementTargetPosition = Helpers.RandomPlanePosition(ResourceDropPoint.transform.position, 3f, 3f);
 				movement = true;
+
+				CarryResource.gameObject.SetActive(true);
+				CarryResource.sprite = CarrySprites[(int)currentResource.Resource];
 			}
 			return;
 		}
@@ -105,6 +120,7 @@ public class Villager : MonoBehaviour
 				{
 					//drop resource
 					gotoResourcePoint = false;
+					CarryResource.gameObject.SetActive(false);
 					if (OnResourceDroppedEvent != null) OnResourceDroppedEvent(currentResource.Resource);
 				
 					if (AutomaticalGather)
@@ -186,6 +202,11 @@ public class Villager : MonoBehaviour
 		movement = false;
 		baking = false;
 		gatheringResource = false;
+
+		CarryResource.gameObject.SetActive(false);
+		
+		Animator.SetBool("Carrying", false);
+		Animator.SetBool("Walking", false);
 	}
 
 	public void Select ()
