@@ -77,6 +77,7 @@ public class YearOver : MonoBehaviour
 
     public void OnQuitPressed()
     {
-        Application.Quit();
+		GameController.StartInMenu = true;
+		Application.LoadLevel(Application.loadedLevel);
     }
 }

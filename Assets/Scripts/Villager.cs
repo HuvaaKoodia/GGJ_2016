@@ -30,6 +30,9 @@ public class Villager : MonoBehaviour
     {
         MovementTargetPosition = transform.position;
         gotoResourcePoint = false;
+
+		//randomize starting direction
+		Animator.transform.localScale = new Vector3(Random.Range(0,2) == 0 ? -1 : 1, 1, 1);
     }
 
 	public void Die()
@@ -164,11 +167,10 @@ public class Villager : MonoBehaviour
 		}
 
 		//interrupt previous actions
-		if (baking)
-		{
+
 			baking = false;
 			BakingHat.SetActive(false);
-		}
+
 		gatheringResource= false;
 		goToBake = false;
 

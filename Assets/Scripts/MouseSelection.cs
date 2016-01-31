@@ -39,7 +39,7 @@ public class MouseSelection : MonoBehaviour
             bool commandGiven = false;
             
             //find resource or cake
-            if (Physics.Raycast(ray, out hit, 100, 1 << LayerMask.NameToLayer("Resource")))
+            if (Physics.Raycast(ray, out hit, 1000, 1 << LayerMask.NameToLayer("Resource")))
             {
                 var resource = hit.collider.GetComponent<ResourceView>();
 
@@ -50,7 +50,7 @@ public class MouseSelection : MonoBehaviour
                     commandGiven = true;
                 }
              }
-             else if (Physics.Raycast(ray, out hit, 100, 1 << LayerMask.NameToLayer("Cake")))
+             else if (Physics.Raycast(ray, out hit, 1000, 1 << LayerMask.NameToLayer("Cake")))
              {
                 foreach (var aVillager in villagers)
                 {
@@ -60,10 +60,14 @@ public class MouseSelection : MonoBehaviour
                 }
              }
 
-            if (commandGiven) villagers.Clear();
+            if (commandGiven)
+			{
+				villagers.Clear();
+				return;
+			}
             
 			//find villager
-            if (Physics.Raycast(ray, out hit, 100,  1 << LayerMask.NameToLayer("Villager")))
+            if (Physics.Raycast(ray, out hit, 1000,  1 << LayerMask.NameToLayer("Villager")))
             {
 
                 targetVillager = hit.transform.GetComponent<Villager>();
@@ -81,7 +85,7 @@ public class MouseSelection : MonoBehaviour
                 }
             }
 
-            else if (Physics.Raycast(ray, out hit, 100, 1 << LayerMask.NameToLayer("Ground")))
+            else 
             {
                 isSelecting = true;
                 mousePosition1 = Input.mousePosition;

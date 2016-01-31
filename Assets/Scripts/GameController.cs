@@ -20,17 +20,20 @@ public class GameController : MonoBehaviour
 	public CakeView Cake;
 	public Timer Timer;
 	public MouseSelection MouseSelection;
-	public static int VillagerAmount = 10, CakesMade = 0;
+	public static int VillagerAmount = 0, CakesMade = 0;
  
+	public static bool StartInMenu = true;
+
 	public GameObject LightningBoltPrefab;
 
 	ResourceList CollectedResources;
 	ResourceList[] RequiredResources, RequiredResourcesMax;
 	int[] maxResourceAmountsPerLayer;
+	int [,] LayerResourceTypeAmounts;
 
 	int currentBakeLayer = 0, maxAmountRequired;
 
-	public AudioSource lightningSource;
+	public AudioSource lightningSource, Music, Kong;
 	private List<Villager> Villagers;
 
 	private void Awake()
@@ -40,8 +43,9 @@ public class GameController : MonoBehaviour
 
 	private IEnumerator Start()
 	{
+		if (StartInMenu) VillagerAmount = 10;
+
 		Timer.enabled = false;
-		GUICanvas.enabled = false;
 		MouseSelection.enabled = false;
 
 		//set basic values
@@ -50,9 +54,37 @@ public class GameController : MonoBehaviour
 		maxResourceAmountsPerLayer[0] = 30;
 		maxResourceAmountsPerLayer[1] = 15;
 		maxResourceAmountsPerLayer[2] = 5;
+
+		LayerResourceTypeAmounts = new int[6,3];
+
+		LayerResourceTypeAmounts[0,0] = 2;
+		LayerResourceTypeAmounts[0,1] = 1;
+		LayerResourceTypeAmounts[0,2] = 1;
+
+		LayerResourceTypeAmounts[1,0] = 2;
+		LayerResourceTypeAmounts[1,1] = 2;
+		LayerResourceTypeAmounts[1,2] = 1;
+
+		LayerResourceTypeAmounts[2,0] = 3;
+		LayerResourceTypeAmounts[2,1] = 2;
+		LayerResourceTypeAmounts[2,2] = 1;
+
+		LayerResourceTypeAmounts[3,0] = 3;
+		LayerResourceTypeAmounts[3,1] = 2;
+		LayerResourceTypeAmounts[3,2] = 2;
+
+		LayerResourceTypeAmounts[4,0] = 3;
+		LayerResourceTypeAmounts[4,1] = 3;
+		LayerResourceTypeAmounts[4,2] = 2;
 		
+		LayerResourceTypeAmounts[5,0] = 4;
+		LayerResourceTypeAmounts[5,1] = 3;
+		LayerResourceTypeAmounts[5,2] = 2;
+
 		CollectedResources = new ResourceList();
-		
+
+		int turnIndex = CakesMade;
+
 		//set up events
 		Timer.OnJudgementDayEvent += OnJudgementDay;
 		
@@ -70,7 +102,7 @@ public class GameController : MonoBehaviour
 				RequiredResourcesMax [l] = new ResourceList();
 				
 				//add resources to layer
-				int amountOfResourcesTypes = Random.Range(1, (maxResourceTypesPerLayer - l) + 1);
+				int amountOfResourcesTypes = LayerResourceTypeAmounts[Mathf.Min(turnIndex, LayerResourceTypeAmounts.GetLength(0) - 1) , l];
 				int maxResourceAmountPerLayer = maxResourceAmountsPerLayer[l];
 				int resourcesToDistribute = maxResourceAmountPerLayer;
 				List<ResourceID> alreadyUsedResourceTypes = new List<ResourceID>();
@@ -114,7 +146,7 @@ public class GameController : MonoBehaviour
 			Villagers = new List<Villager>();
 			for (int i = 0; i < amountOfVillagers; i++) 
 			{
-				var villager = Instantiate(VillagerPrefab, Helpers.RandomPlanePosition(VillagerStartPosCenter.position, 5f), Quaternion.identity) as Villager;
+				var villager = Instantiate(VillagerPrefab, Helpers.RandomPlanePosition(VillagerStartPosCenter.position, 7f), Quaternion.identity) as Villager;
 				villager.OnResourceDroppedEvent += OnResourceGained;
 				villager.OnBakeCompleteEvent += OnBakeCompleted;
 				villager.ResourceDropPoint = ResourceDropArea;
@@ -123,18 +155,43 @@ public class GameController : MonoBehaviour
 			}
 		}
 
+		YearText.gameObject.SetActive(false);
+		UIBasics.SetActive(false);
+
+		while (StartInMenu)
+		{
+			yield return null;
+		}
+		StartMenu.SetActive(false);
+		Kong.Play();
+
+		GUICanvas.enabled = false;
+
 		//start cutscenes:
 		yield return StartCoroutine(theGodCutScene.godCutSceneCoroutine());
 
 		GUICanvas.enabled = true;
 		YearText.text = "Year "+(CakesMade + 1);
-		YearText.gameObject.SetActive( true);
-		UIBasics.SetActive(false);
+		YearText.gameObject.SetActive(true);
+
 		yield return new WaitForSeconds(3f);
-		YearText.gameObject.SetActive( false);
+		YearText.gameObject.SetActive(false);
 		Timer.enabled = true;
 		UIBasics.SetActive(true);
 		MouseSelection.enabled = true;
+		Music.Play();
+	}
+
+	public GameObject StartMenu;
+
+	public void OnStartPressed()
+	{
+		StartInMenu = false;
+	}
+
+	public void OnQuitPressed()
+	{
+		Application.Quit();
 	}
 
 	void OnJudgementDay()
@@ -144,6 +201,8 @@ public class GameController : MonoBehaviour
 
 	IEnumerator JudgementDayCoroutine()
 	{
+		Music.Stop();
+
 		//hide stuff
 		UIBasics.SetActive(false);
 
