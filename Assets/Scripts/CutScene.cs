@@ -40,7 +40,8 @@ public class CutScene : MonoBehaviour
         gameCamera.MoveToPosition(godCameraPositionTarget, 1f);
         theGod.GodAppear();
         yield return new WaitForSeconds(1);
-        gameCamera.Shake(0.12f);
+        gameCamera.Shake(0.08f);
+        //gameCamera.Shake(0.12f);
         gameCamera.Zoom(25, 1);
         yield return new WaitForSeconds(2);
         source.PlayOneShot(GodTalk, 1);

@@ -21,8 +21,11 @@ public class GameController : MonoBehaviour
 	public Timer Timer;
 	public MouseSelection MouseSelection;
 	public static int VillagerAmount = 0, CakesMade = 0;
- 
+
 	public static bool StartInMenu = true;
+
+    public HighScore highScorePrefab;
+    public HighScoreManager highScoreManager;
 
 	public GameObject LightningBoltPrefab;
 
@@ -35,6 +38,8 @@ public class GameController : MonoBehaviour
 
 	public AudioSource lightningSource, Music, Kong;
 	private List<Villager> Villagers;
+
+    public string playerName = "a";
 
 	private void Awake()
 	{
@@ -194,6 +199,12 @@ public class GameController : MonoBehaviour
 		Application.Quit();
 	}
 
+    public void goToHighScore()
+    {
+        StartMenu.SetActive(false);
+        highScorePrefab.showHighScore(highScoreManager.GetHighScore());
+    }
+
 	void OnJudgementDay()
 	{
 		StartCoroutine(JudgementDayCoroutine());
@@ -233,7 +244,7 @@ public class GameController : MonoBehaviour
 		int deadVillagers = 0;
 		int cutSceneType = 0;
 
-		failPercentage = 60;
+        failPercentage = Random.Range(0,100);
 
 		if (failPercentage == 0) 
 		{
@@ -304,6 +315,10 @@ public class GameController : MonoBehaviour
 		
 		YearOverScreen.showResult(failPercentage, deadVillagers);
 
+        if (VillagerAmount == 0)
+        {
+            highScoreManager.SaveHighScore(CakesMade);
+        }
 	}
 
 	void OnResourceGained(ResourceID resource)
@@ -388,8 +403,12 @@ public class GameController : MonoBehaviour
 	void Update()
 	{
 		if (Input.GetKeyDown(KeyCode.R)) GotoNextYear();
-	}
 
+        if (highScorePrefab.BackToMainMenu)
+        {
+            StartMenu.SetActive(true);
+        }
+	}
 
 	public void GotoNextYear()
 	{
