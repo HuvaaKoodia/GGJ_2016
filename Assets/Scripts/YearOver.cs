@@ -58,7 +58,7 @@ public class YearOver : MonoBehaviour
     {
         YearOverCanvas.SetActive(true);
         messageText.text = "Game Over!";
-        announceText.text = "You made " + cakesMade + " cakes";
+		announceText.text = "You made " + cakesMade + ((cakesMade == 1) ? " cake." : " cakes.");
         continueButton.gameObject.SetActive(false);
         quitButton.gameObject.SetActive(true);
     }

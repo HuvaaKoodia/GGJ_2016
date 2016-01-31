@@ -232,26 +232,33 @@ public class GameController : MonoBehaviour
 		int failPercentage = (int)((AmountOfResourcesMissingInCake / (float) MaxAmountOfResourcesInCake) * 100);
 		int deadVillagers = 0;
 		int cutSceneType = 0;
+
+		failPercentage = 60;
+
 		if (failPercentage == 0) 
 		{
 			Debug.Log("perfect cake -> no one dies");
 			cutSceneType = 1;
+			CakesMade += 1;
 		}
 		else if (failPercentage > 0 && failPercentage <= 10) 
 		{
 			Debug.Log("near perfect cake -> one villager dies");
 			deadVillagers = 1;
+			CakesMade += 1;
 		}
 		else if (failPercentage > 10 && failPercentage <= 50) 
 		{
 			Debug.Log("ok cake -> 2 - 3 villagers die");
 			deadVillagers = Random.Range(2, 3 + 1);
+			CakesMade += 1;
 		}
 		else if (failPercentage > 50 && failPercentage <= 90) 
 		{
 			Debug.Log("bad cake -> 3-5 villagers die");
 			deadVillagers = Random.Range(3, 5 + 1);
 			cutSceneType = 2;
+			CakesMade += 1;
 		}
 		else if (failPercentage > 90) 
 		{
@@ -260,14 +267,14 @@ public class GameController : MonoBehaviour
 			cutSceneType = 2;
 		}
 
-        CakesMade += 1;
+		if (deadVillagers > VillagerAmount) deadVillagers = VillagerAmount;
+
 		VillagerAmount -= deadVillagers;
 
 		//god cutscene
 
 		//neutral god
 		if (cutSceneType == 0) yield return StartCoroutine(theGodCutScene.godCutSceneCoroutine());
-
 		
 		//happy god
 		if (cutSceneType == 1) yield return StartCoroutine(theGodCutScene.godCutSceneCoroutine());
@@ -275,10 +282,6 @@ public class GameController : MonoBehaviour
 		//angry god
 		if (cutSceneType == 2) yield return StartCoroutine(theGodCutScene.godAngryCutSceneCoroutine());
 
-		if (deadVillagers > 0)
-		{       	
-			lightningSource.Play();
-		}
 
 		for (int v = 0; v < deadVillagers; v++) 
 		{
@@ -287,13 +290,17 @@ public class GameController : MonoBehaviour
 
 		yield return new WaitForSeconds(0.6f);
 		
+		if (deadVillagers > 0)
+		{       	
+			lightningSource.Play();
+		}
+
 		for (int v = 0; v < deadVillagers; v++) 
 		{
 			Instantiate(LightningBoltPrefab, Villagers[v].transform.position,Quaternion.identity);
 		}
-
-
-		yield return new WaitForSeconds(4.0f);
+	
+		yield return new WaitForSeconds(2.8f);
 		
 		YearOverScreen.showResult(failPercentage, deadVillagers);
 
