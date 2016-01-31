@@ -14,6 +14,16 @@ public class CutScene : MonoBehaviour
 
 	public CakeDude CakeDude;
 
+    public AudioClip AngryGod;
+    public AudioClip GodTalk;
+
+    private AudioSource source;
+
+    void Awake()
+    {
+        source = GetComponent<AudioSource>();
+    }
+
     public void theGodShow()
     {
         StartCoroutine(godCutSceneCoroutine());
@@ -32,7 +42,9 @@ public class CutScene : MonoBehaviour
         yield return new WaitForSeconds(1);
         gameCamera.Shake(0.12f);
         gameCamera.Zoom(25, 1);
-        yield return new WaitForSeconds(8);
+        yield return new WaitForSeconds(2);
+        source.PlayOneShot(GodTalk, 1);
+        yield return new WaitForSeconds(2);
         theGod.GodDisappear();
         gameCamera.StopShake();
         yield return new WaitForSeconds(1);
@@ -72,9 +84,10 @@ public class CutScene : MonoBehaviour
 		gameCamera.MoveToPosition(godCameraPositionTarget, 1f);
 		theGod.GodAppearAngry();
 		yield return new WaitForSeconds(1);
+        source.PlayOneShot(AngryGod, 1);
 		gameCamera.Shake(0.3f);
 		gameCamera.Zoom(28, 1);
-		yield return new WaitForSeconds(8);
+		yield return new WaitForSeconds(5);
 		theGod.GodDisappear();
 		gameCamera.StopShake();
 		yield return new WaitForSeconds(1);
