@@ -14,6 +14,12 @@ public class God : MonoBehaviour
         Animator.SetTrigger("GodNeutral");
     }
 
+	public void GodAppearAngry()
+	{
+		handtogglehack = true;
+		Animator.SetTrigger("GodAngry");
+	}
+
     public void GodDisappear()
     {
         handtogglehack = true;

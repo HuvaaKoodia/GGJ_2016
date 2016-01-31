@@ -8,27 +8,22 @@ public class GameController : MonoBehaviour
 {
 	public ResourcePanel CollectedResourcesPanel;
 	public ResourcePanel[] RequiredResourceLayerPanels;
-
 	public static GameController I;
-
 	public Villager VillagerPrefab;
 	public Transform VillagerStartPosCenter;
 	public Transform ResourceDropArea;
-
 	public Canvas GUICanvas;
 	public Text YearText;
 	public GameObject UIBasics;
-
 	public CutScene theGodCutScene;
-
-    public YearOver YearOverPrefab;
+    public YearOver YearOverScreen;
 	public CakeView Cake;
-
 	public Timer Timer;
 	public MouseSelection MouseSelection;
-
 	public static int VillagerAmount = 10, CakesMade = 0;
  
+	public GameObject LightningBoltPrefab;
+
 	ResourceList CollectedResources;
 	ResourceList[] RequiredResources, RequiredResourcesMax;
 	int[] maxResourceAmountsPerLayer;
@@ -36,7 +31,6 @@ public class GameController : MonoBehaviour
 	int currentBakeLayer = 0, maxAmountRequired;
 
 	public AudioSource lightningSource;
-
 	private List<Villager> Villagers;
 
 	private void Awake()
@@ -130,11 +124,8 @@ public class GameController : MonoBehaviour
 		}
 
 		//start cutscenes:
-		yield return new WaitForSeconds(2f);
-
 		yield return StartCoroutine(theGodCutScene.godCutSceneCoroutine());
 
-		yield return new WaitForSeconds(1f);
 		GUICanvas.enabled = true;
 		YearText.text = "Year "+(CakesMade + 1);
 		YearText.gameObject.SetActive( true);
@@ -148,6 +139,14 @@ public class GameController : MonoBehaviour
 
 	void OnJudgementDay()
 	{
+		StartCoroutine(JudgementDayCoroutine());
+	}
+
+	IEnumerator JudgementDayCoroutine()
+	{
+		//hide stuff
+		UIBasics.SetActive(false);
+
 		//stop villagers
 		foreach (var villager in Villagers) 
 		{
@@ -173,9 +172,11 @@ public class GameController : MonoBehaviour
 
 		int failPercentage = (int)((AmountOfResourcesMissingInCake / (float) MaxAmountOfResourcesInCake) * 100);
 		int deadVillagers = 0;
+		int cutSceneType = 0;
 		if (failPercentage == 0) 
 		{
 			Debug.Log("perfect cake -> no one dies");
+			cutSceneType = 1;
 		}
 		else if (failPercentage > 0 && failPercentage <= 10) 
 		{
@@ -191,18 +192,30 @@ public class GameController : MonoBehaviour
 		{
 			Debug.Log("bad cake -> 3-5 villagers die");
 			deadVillagers = Random.Range(3, 5 + 1);
+			cutSceneType = 2;
 		}
 		else if (failPercentage > 90) 
 		{
 			Debug.Log("terrible cake (or no cake at all!)-> everyone dies");
 			deadVillagers = VillagerAmount;
+			cutSceneType = 2;
 		}
 
         CakesMade += 1;
 		VillagerAmount -= deadVillagers;
 
-		YearOverPrefab.showResult(failPercentage, deadVillagers);
+		//god cutscene
+
+		//neutral god
+		if (cutSceneType == 0) yield return StartCoroutine(theGodCutScene.godCutSceneCoroutine());
+
 		
+		//happy god
+		if (cutSceneType == 1) yield return StartCoroutine(theGodCutScene.godCutSceneCoroutine());
+
+		//angry god
+		if (cutSceneType == 2) yield return StartCoroutine(theGodCutScene.godAngryCutSceneCoroutine());
+
 		if (deadVillagers > 0)
 		{       	
 			lightningSource.Play();
@@ -212,6 +225,19 @@ public class GameController : MonoBehaviour
 		{
 			Villagers[v].Die();
 		}
+
+		yield return new WaitForSeconds(0.6f);
+		
+		for (int v = 0; v < deadVillagers; v++) 
+		{
+			Instantiate(LightningBoltPrefab, Villagers[v].transform.position,Quaternion.identity);
+		}
+
+
+		yield return new WaitForSeconds(4.0f);
+		
+		YearOverScreen.showResult(failPercentage, deadVillagers);
+
 	}
 
 	void OnResourceGained(ResourceID resource)
@@ -272,10 +298,7 @@ public class GameController : MonoBehaviour
 			if (currentBakeLayer == RequiredResources.Length)
 			{
 				//celebrations!!
-				foreach (var villager in Villagers) 
-				{
-					villager.Stop();
-				}
+				OnJudgementDay();
 			}
 		}
 
@@ -291,7 +314,7 @@ public class GameController : MonoBehaviour
 		}
 
 
-		Cake.SetCakeCompletionPercentage(1- (amountRequired / (float) maxAmountRequired));
+		Cake.SetCompletionPercentage(1- (amountRequired / (float) maxAmountRequired));
 
 		return true;
 	}

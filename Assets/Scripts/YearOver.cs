@@ -23,31 +23,31 @@ public class YearOver : MonoBehaviour
         YearOverCanvas.SetActive(true);
         if (failPercentage == 0)
         {
-            messageText.text = "Mmm... Delicious";
-            announceText.text = "No one Died";
+            messageText.text = "Mmm... Delicious.";
+            announceText.text = "No one dies!";
             continueButton.SetActive(true);
         }
         else if (failPercentage > 0 && failPercentage <= 10)
         {
-            messageText.text = "Good enough";
-            announceText.text = deadVillager + " " + "People Died";
+            messageText.text = "Good enough.";
+            announceText.text = deadVillager + " " + "villager died!";
             continueButton.SetActive(true);
         }
         else if (failPercentage > 10 && failPercentage <= 50)
         {
-            messageText.text = "Unapprovable";
-            announceText.text = deadVillager + " " + "People Died";
+            messageText.text = "Unapprovable...";
+			announceText.text = deadVillager + " " + "villagers died!";
             continueButton.SetActive(true);
         }
         else if (failPercentage > 50 && failPercentage <= 90)
         {
             messageText.text = "What filth is this?";
-            announceText.text = deadVillager + " " + "People Died";
+			announceText.text = deadVillager + " " + "villagers died!";
         }
         if (failPercentage > 90)
         {
-            messageText.text = "You are not worthy";
-            announceText.text = "Everyone Died";
+            messageText.text = "You are not worthy!";
+            announceText.text = "Everyone died!";
         }
 
         quitButton.gameObject.SetActive(false);
